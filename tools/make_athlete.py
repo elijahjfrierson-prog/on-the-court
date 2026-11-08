@@ -24,9 +24,9 @@ def find(sub, ext):
                 for f in files:
                     if f.endswith(ext): yield os.path.join(d, f)
 skins = list(find('skins', '.mhmat')); print('skins', skins[:20])
-pick = next((s for s in skins if 'african' in s.lower() and 'male' in s.lower() and 'female' not in s.lower()), skins[0] if skins else None)
+pick = next((s for s in skins if 'young_african_male' in s.lower()), None) or next((s for s in skins if 'middleage_african_male' in s.lower()), skins[0] if skins else None)
 if pick: HumanService.set_character_skin(pick, basemesh); print('skin', pick)
-for kind in ['eyes', 'eyebrows', 'eyelashes', 'teeth', 'tongue']:
+for kind in ['eyes', 'eyebrows', 'eyelashes', 'teeth', 'tongue', 'hair/short02']:
     c = list(find(kind, '.mhclo'))
     print(kind, c[:3])
     if c:
