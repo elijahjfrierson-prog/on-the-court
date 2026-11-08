@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Pull current NBA rosters + stats (ESPN public API) and write src/rosters.js.
+OVR is a 2K-like scale computed from blended this-season / last-season production (floor 65)."""
+import json, urllib.request, os, sys, bisect
+
+UA = {'User-Agent': 'Mozilla/5.0'}
+def get(url):
+    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
+        return json.load(r)
+
+def stats(season=None):
+    url = ('https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete'
+           '?region=us&lang=en&contentorigin=espn&isqualified=false&page=1&limit=800&sort=offensive.avgPoints%3Adesc')
+    if season: url += f'&season={season}&seasontype=2'
+    d = get(url); names = {c['name']: c['names'] for c in d['categories']}; out = {}
+    for a in d['athletes']:
+        row = {}
+        for c in a['categories']:
+            for n, v in zip(names[c['name']], c['totals']):
+                try: row[n] = float(v)
+                except (TypeError, ValueError): pass
+        out[a['athlete']['id']] = row
+    return out, d['requestedSeason']['displayName']
+
+def blend(cur, prev):
+    gc, gp = cur.get('gamesPlayed', 0), prev.get('gamesPlayed', 0)
+    if gc == 0 and gp == 0: return None
+    wc = min(1.0, gc / 25.0) if gp else 1.0
+    keys = set(cur) | set(prev)
+    return {k: cur.get(k, 0) * wc + prev.get(k, 0) * (1 - wc) for k in keys}, gc + gp
+
+def impact(s):
+    pts, reb, ast = s.get('avgPoints', 0), s.get('avgRebounds', 0), s.get('avgAssists', 0)
+    stl, blk, tov = s.get('avgSteals', 0), s.get('avgBlocks', 0), s.get('avgTurnovers', 0)
+    fga, fta = s.get('avgFieldGoalsAttempted', 0), s.get('avgFreeThrowsAttempted', 0)
+    ts = pts / (2 * (fga + 0.44 * fta)) if fga + fta > 0 else 0.5
+    return pts + 1.2 * reb + 1.6 * ast + 2.2 * stl + 2.0 * blk - 1.2 * tov + (ts - 0.56) * pts * 1.6
+
+# percentile → OVR anchors (2K-like distribution, floor 65)
+ANCHORS = [(0.0, 65), (0.30, 70), (0.55, 74), (0.75, 78), (0.88, 82), (0.95, 86), (0.985, 91), (1.0, 98)]
+def pct_to_ovr(p):
+    for (p0, o0), (p1, o1) in zip(ANCHORS, ANCHORS[1:]):
+        if p <= p1: return o0 + (o1 - o0) * (p - p0) / max(1e-9, p1 - p0)
+    return 98
+
+def position(abbr, h, s):
+    ast, reb = s.get('avgAssists', 0) if s else 0, s.get('avgRebounds', 0) if s else 0
+    if abbr == 'C' or h >= 83: return 'C'
+    if abbr == 'G' or abbr == 'PG' or abbr == 'SG':
+        return 'PG' if (ast >= 4.5 or h <= 75) else 'SG'
+    if abbr in ('F', 'SF', 'PF'):
+        return 'PF' if (h >= 81 or reb >= 7) else 'SF'
+    return 'SF'
+
+def main():
+    cur, cur_name = stats(); prev, prev_name = stats(2026 if '2026-27' in cur_name else None)
+    teams = get('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams')['sports'][0]['leagues'][0]['teams']
+    league = []
+    for t in teams:
+        t = t['team']
+        r = get(f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{t['id']}/roster")
+        plist = []
+        for a in r['athletes']:
+            b = blend(cur.get(a['id'], {}), prev.get(a['id'], {}))
+            s, gp = (b if b else ({}, 0))
+            h = int(round(a.get('height') or 78)); w = int(round(a.get('weight') or 215))
+            plist.append({'name': a['displayName'], 'num': (a.get('jersey') or '0'), 'h': h, 'w': w,
+                          'pos': position(a['position']['abbreviation'], h, s), 'age': a.get('age'),
+                          'imp': impact(s) if s else None, 'mpg': s.get('avgMinutes', 0) if s else 0, 'gp': gp,
+                          'st': {k: round(s.get(k, 0), 3) for k in ('avgPoints', 'avgRebounds', 'avgAssists', 'avgSteals', 'avgBlocks', 'threePointFieldGoalPct', 'avgThreePointFieldGoalsAttempted', 'freeThrowPct', 'fieldGoalPct')} if s else {}})
+        league.append({'id': t['id'], 'abbr': t['abbreviation'], 'city': t['location'], 'name': t['name'], 'full': t['displayName'],
+                       'color': '#' + (t.get('color') or '333333'), 'alt': '#' + (t.get('alternateColor') or 'ffffff'), 'players': plist})
+    # percentiles over players with real minutes
+    imps = sorted(p['imp'] for tm in league for p in tm['players'] if p['imp'] is not None and p['gp'] >= 5)
+    for tm in league:
+        for p in tm['players']:
+            if p['imp'] is None or p['gp'] < 5: p['ovr'] = 66 if p['imp'] is None else 67
+            else:
+                pc = bisect.bisect_left(imps, p['imp']) / max(1, len(imps) - 1)
+                p['ovr'] = int(round(max(65, min(98, pct_to_ovr(pc)))))
+            del p['imp']
+        tm['players'].sort(key=lambda p: -p['ovr'])
+        tm['players'] = tm['players'][:15]
+        top = [p['ovr'] for p in tm['players'][:8]]
+        tm['ovr'] = int(round(sum(top) / len(top) * 0.6 + max(top) * 0.4)) if top else 75
+    out = os.path.join(os.path.dirname(__file__), '..', 'src', 'rosters.js')
+    with open(out, 'w') as f:
+        f.write(f'// Generated by tools/fetch_rosters.py — {cur_name} (blended with {prev_name}). Swap this file for any league.\n')
+        f.write('OTC.LEAGUE = ' + json.dumps({'season': cur_name, 'teams': league}, separators=(',', ':')) + ';\n')
+    allo = [p['ovr'] for tm in league for p in tm['players']]
+    print('teams', len(league), 'players', len(allo), 'avg', round(sum(allo) / len(allo), 1), 'min', min(allo), 'max', max(allo))
+    for tm in sorted(league, key=lambda t: -t['ovr'])[:5]: print(tm['full'], tm['ovr'], [(p['name'], p['ovr']) for p in tm['players'][:3]])
+
+if __name__ == '__main__': main()

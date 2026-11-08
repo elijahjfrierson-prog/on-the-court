@@ -1,0 +1,81 @@
+On The Court — End User License Agreement
+
+Last updated: 2026
+
+IMPORTANT: READ THIS AGREEMENT BEFORE INSTALLING OR USING THE SOFTWARE. BY
+CLICKING "I ACCEPT", INSTALLING, OR USING THE SOFTWARE, YOU AGREE TO BE BOUND BY
+THIS AGREEMENT. IF YOU DO NOT AGREE, DO NOT INSTALL OR USE THE SOFTWARE.
+
+1. PARTIES AND SUBJECT
+This End User License Agreement ("Agreement") is between you ("you") and
+HumHouse ("we", "us"), and covers the On The Court video game, together with its content,
+documentation and updates
+(the "Software").
+
+2. LICENSE GRANTED
+We grant you a personal, non-exclusive, worldwide, revocable license to install
+and use the Software on computers you own or control, for personal entertainment. You may make backup copies for your own use.
+
+3. ONLINE AND USER CONTENT
+Roster files, builds and other content you create or import are your
+responsibility. Do not import content you do not have the right to use.
+
+4. RESTRICTIONS
+You may not:
+  (a) sell, rent, lease, sublicense, or redistribute the Software itself as a
+      product, whether alone or bundled with another product;
+  (b) remove or alter any copyright, trademark, or license notice;
+  (c) reverse engineer, decompile, or disassemble the Software, except to the
+      extent that applicable law expressly permits it despite this limitation;
+  (d) use the Software to develop a competing product derived from it.
+
+5. OWNERSHIP
+The Software is licensed, not sold. We and our licensors retain all right, title
+and interest in the Software, including all intellectual property rights.
+
+6. THIRD-PARTY COMPONENTS
+The Software includes Electron and Chromium (MIT/BSD), three.js (MIT) and
+MakeHuman assets (CC0), each licensed separately by their authors.
+
+7. NO AFFILIATION
+HumHouse is not affiliated with, endorsed by, or sponsored by any sports
+league, team, player or video game publisher. Names and marks belong to
+their respective owners.
+
+8. UPDATES
+We may provide updates or new versions at our discretion. Unless an update ships
+with its own license terms, this Agreement governs it. We are under no
+obligation to provide support, updates, or maintenance.
+
+9. TERM AND TERMINATION
+This Agreement takes effect when you install the Software and continues until
+terminated. It terminates automatically if you breach it. On termination you must
+stop using the Software and remove all installed copies. Sections 3, 5, 10, 11
+and 12 survive termination.
+
+10. NO WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO
+NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE, OR COMPATIBLE
+WITH ANY PARTICULAR HOST OR HARDWARE.
+
+11. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE WILL NOT BE LIABLE FOR ANY INDIRECT,
+INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF
+PROFITS, REVENUE, DATA, RECORDINGS, PROJECTS, OR GOODWILL, ARISING OUT OF OR
+RELATED TO THE SOFTWARE. OUR TOTAL AGGREGATE LIABILITY UNDER THIS AGREEMENT WILL
+NOT EXCEED THE GREATER OF THE AMOUNT YOU PAID FOR THE SOFTWARE OR USD $25.
+
+AUDIO SAFETY NOTICE: pitch shifters can produce sudden loud output. Protect your
+ears and your speakers — keep monitoring levels low while adjusting settings. We
+are not liable for hearing damage or equipment damage caused by monitoring at
+unsafe levels.
+
+12. GENERAL
+If any provision of this Agreement is held unenforceable, the remainder stays in
+force. This Agreement is the entire agreement between us regarding the Software
+and supersedes any prior understanding. Our failure to enforce a provision is not
+a waiver of it.
+
+Questions: https://github.com/elijahjfrierson-prog/hum-house-pitch/issues

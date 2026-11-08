@@ -1,0 +1,17 @@
+{
+  "name": "on-the-court",
+  "productName": "On The Court",
+  "version": "0.1.0",
+  "description": "On The Court — 3D basketball",
+  "main": "electron/main.js",
+  "private": true,
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "three": "0.160.0"
+  }
+}
