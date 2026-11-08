@@ -59,7 +59,7 @@ const TICK = OTC.TICK; let acc = 0, last = performance.now(), menuT = 0, errors 
 const ray = new THREE.Raycaster(), ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  const dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = Math.max(last, now);
   try {
     if (app.mode === 'game' && app.game) {
       const g = app.game;

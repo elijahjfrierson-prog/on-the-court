@@ -265,7 +265,7 @@ OTC.World = class {
     if (focus) { this.key.position.set(focus.x + 6, 22, focus.z + 8); this.key.target.position.set(focus.x, 0, focus.z); }
     // crowd bounce scales with hype; update a slice each frame to keep cost low
     if (this.fans) {
-      const m4 = new THREE.Matrix4(), n = this.fanData.length, slice = Math.ceil(n / 3), start = (Math.floor(this.time * 60) % 3) * slice;
+      const m4 = new THREE.Matrix4(), n = this.fanData.length, slice = Math.ceil(n / 3), start = ((Math.floor(Math.abs(this.time) * 60) % 3) + 3) % 3 * slice;
       for (let i = start; i < Math.min(n, start + slice); i++) {
         const f = this.fanData[i];
         const amp = this.hype * 0.18 * (0.5 + ((i * 7919) % 100) / 200);
