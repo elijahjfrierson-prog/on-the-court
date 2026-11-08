@@ -1,5 +1,5 @@
 // ===== On The Court — game data & pure logic (no rendering) =====
-const OTC = {};
+const OTC = (window.OTC = window.OTC || {});
 
 OTC.VERSION = '0.1.0';
 OTC.TICK = 1 / 60;
@@ -325,6 +325,8 @@ OTC.MODES = {
   '5v5':  { name: '5 vs 5', size: 5, full: true, target: null, quarters: 4, qLen: 180, shotClock: 24, desc: 'Full court, 4 quarters' },
   '3v3':  { name: '3 vs 3', size: 3, full: false, target: 21, shotClock: 14, makeItTakeIt: false, desc: 'Half court to 21 (2s and 3s)' },
   '1v1':  { name: '1 vs 1', size: 1, full: false, target: 15, shotClock: 12, makeItTakeIt: true, desc: 'Half court to 15, make it take it' },
+  'season': { name: 'Season Game', size: 5, full: true, target: null, quarters: 4, qLen: 120, shotClock: 24, desc: '5v5, 2-min quarters, record + skill points' },
+  'practice': { name: 'Practice', size: 1, full: false, target: null, shotClock: 99, desc: 'Free practice: combos, jumpers, dunks' },
   '21':   { name: '21', size: 3, full: false, target: 21, exact: true, cutthroat: true, shotClock: 14, desc: 'Every player for himself, exactly 21 (bust → 13)' },
 };
 OTC.DIFFICULTY = { Rookie: 0.55, Pro: 0.75, 'All-Star': 0.9, 'Hall of Fame': 1.05 };
@@ -372,7 +374,7 @@ OTC.physicals = (build, r) => {
   };
 };
 
-if (typeof module !== 'undefined') module.exports = OTC;
+
 
 // ---- Progression: Court Star starts ~60 OVR, upgrades bought with skill points earned per game.
 OTC.starBase = (cap) => Math.round(25 + (cap - 25) * 0.5);

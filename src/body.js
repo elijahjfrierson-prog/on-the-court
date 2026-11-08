@@ -1,8 +1,9 @@
 // ===== Procedural athlete: proportions from the build, joint positions solved every frame =====
+const OTC = window.OTC;
 const V3 = () => new THREE.Vector3();
 const _up = new THREE.Vector3(0, 1, 0);
 
-OTC.jerseyTexture = (color, trim, number, team) => {
+OTC.jerseyTexture = (color, trim, number, team, text = '#fff') => {
   const cv = document.createElement('canvas'); cv.width = 512; cv.height = 512; const g = cv.getContext('2d');
   g.fillStyle = color; g.fillRect(0, 0, 512, 512);
   // fabric mesh noise
@@ -11,11 +12,11 @@ OTC.jerseyTexture = (color, trim, number, team) => {
   // front (u 0..0.5) and back (0.5..1)
   g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
   const front = (x) => {
-    g.font = '900 54px Arial Black, Arial'; g.lineWidth = 8; g.strokeStyle = trim; g.strokeText(team, x, 170); g.fillStyle = '#fff'; g.fillText(team, x, 170);
+    g.font = '900 54px Arial Black, Arial'; g.lineWidth = 8; g.strokeStyle = trim; g.strokeText(team, x, 170); g.fillStyle = text; g.fillText(team, x, 170);
     g.font = '900 120px Arial Black, Arial'; g.lineWidth = 12; g.strokeText(String(number), x, 290); g.fillStyle = trim; g.fillText(String(number), x, 290);
   };
   front(128);
-  g.font = '900 170px Arial Black, Arial'; g.lineWidth = 14; g.strokeStyle = trim; g.strokeText(String(number), 384, 260); g.fillStyle = '#fff'; g.fillText(String(number), 384, 260);
+  g.font = '900 170px Arial Black, Arial'; g.lineWidth = 14; g.strokeStyle = trim; g.strokeText(String(number), 384, 260); g.fillStyle = text; g.fillText(String(number), 384, 260);
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
 };
 
@@ -48,7 +49,7 @@ OTC.Athlete = class {
     const d = this.d = this.dims(build);
     const skin = new THREE.MeshPhysicalMaterial({ color: OTC.SKIN_TONES[build.skin ?? 3], roughness: 0.48, clearcoat: 0.25, clearcoatRoughness: 0.6, sheen: 0.3, sheenColor: new THREE.Color('#ffd9c0') });
     const jerseyCol = this.team?.color || build.jersey || '#f2b632', trimCol = this.team?.trim || build.trim || '#0d1d4f';
-    const jersey = new THREE.MeshStandardMaterial({ map: OTC.jerseyTexture(jerseyCol, trimCol, build.number ?? 0, this.team?.short || 'OTC'), roughness: 0.75 });
+    const jersey = new THREE.MeshStandardMaterial({ map: OTC.jerseyTexture(jerseyCol, trimCol, build.number ?? 0, this.team?.short || 'OTC', this.team?.text || '#fff'), roughness: 0.75 });
     const shorts = new THREE.MeshStandardMaterial({ color: jerseyCol, roughness: 0.7 });
     const trim = new THREE.MeshStandardMaterial({ color: trimCol, roughness: 0.6 });
     const shoe = new THREE.MeshStandardMaterial({ color: '#f5f5f5', roughness: 0.45 });

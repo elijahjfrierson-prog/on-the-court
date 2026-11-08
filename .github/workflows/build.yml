@@ -1,0 +1,52 @@
+name: Build On The Court
+on:
+  push:
+    branches: [main, 'devin/**']
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: 'macOS (universal .pkg)', os: macos-15, plat: darwin, arch: universal, artifact: On-The-Court-macOS }
+          - { name: 'Windows (Setup.exe)', os: windows-latest, plat: win32, arch: x64, artifact: On-The-Court-Windows }
+          - { name: 'Linux (.deb)', os: ubuntu-latest, plat: linux, arch: x64, artifact: On-The-Court-Linux }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci || npm install
+      - run: node tools/build.mjs
+      - name: Package app
+        shell: bash
+        run: npx --yes @electron/packager@18.3.6 . "On The Court" --platform=${{ matrix.plat }} --arch=${{ matrix.arch }} --electron-version=33.2.1 --out=out --overwrite --asar --ignore="^/(src|tools|docs|scripts|installer|out|artifacts|\.github|node_modules)"
+      - name: Self-test (launch game, run sim, exit)
+        shell: bash
+        run: |
+          set -x
+          case "${{ matrix.plat }}" in
+            linux) sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgbm1 libnss3 libasound2t64 >/dev/null; xvfb-run -a "out/On The Court-linux-x64/On The Court" --selftest --no-sandbox ;;
+            darwin) "out/On The Court-darwin-universal/On The Court.app/Contents/MacOS/On The Court" --selftest ;;
+            win32) "out/On The Court-win32-x64/On The Court.exe" --selftest ;;
+          esac
+      - name: Package .pkg (macOS)
+        if: runner.os == 'macOS'
+        run: ./scripts/package_macos_pkg.sh && pkgutil --expand artifacts/On-The-Court-macOS.pkg /tmp/x && test -s /tmp/x/Resources/license.txt
+      - name: Package Setup.exe (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          & $iscc installer/windows/OnTheCourt.iss
+      - name: Package .deb (Linux)
+        if: runner.os == 'Linux'
+        run: bash scripts/package_linux_deb.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: artifacts/*

@@ -1,4 +1,5 @@
 // ===== Arena, court, hoops, crowd =====
+const OTC = window.OTC;
 OTC.World = class {
   constructor(scene, renderer, quality) {
     this.scene = scene; this.renderer = renderer; this.quality = quality;

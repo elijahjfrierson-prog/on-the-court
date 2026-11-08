@@ -1,4 +1,5 @@
 // ===== Audio engine: synthesized arena sound (no samples needed) =====
+const OTC = window.OTC;
 OTC.Audio = class {
   constructor() { this.ctx = null; this.vol = { master: 0.9, sfx: 1, crowd: 0.7 }; this.hype = 0.2; }
   init() {
